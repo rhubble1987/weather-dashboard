@@ -37,8 +37,8 @@
                             <img src="" class="card-img" alt="">
                           </div>
                           <div class="col-9">
-                            <div class="card-body">
-                              <h2 class="card-title">City</h2>
+                            <div class="card-body current-weather">
+                              <h2 class="card-title">No city provided</h2>
                               <p class="card-text" >Temp</p>
                               <p class="card-text">High: <span id="todays-high"></span></p>
                               <p class="card-text">Low: <span id="todays-low"></span></p>
@@ -100,18 +100,38 @@
         event.preventDefault();
         var city = $('#city-search').val();
         console.log(city);
-        var searchURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&appid=f235f1e0deb0b2e070d7e0e8c95f6295";
+        var searchURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=imperial&appid=f235f1e0deb0b2e070d7e0e8c95f6295";
         console.log(searchURL);
         $.ajax({
           url: searchURL,
           method: "GET"
         }).then(function(response) {
             console.log(response);
+            var weatherDays = [current,nextDay,secondDay,thirdDay,fourthDay,fifthDay];
+
+            var current = {
+                city: response.name,
+                temp: Math.round(response.main.temp),
+                high: Math.round(response.main.temp_max),
+                low: Math.round(response.main.temp_min),
+                weather: response.weather[0].description
+            }
+
+            var nextDay = "";
+            var secondDay = "";
+            var thirdDay = "";
+            var fourthDay = "";
+            var fifthDay = "";
+
+            console.log(current);
+
         });
     });
 
 
     //2. When the user enters a city, the city's current weater is displayed in the top card and the 5-day forecast is display in the card deck below it
+    
+
     //3. If the user refreshes the page, the city will stay as the city whose weather is being displayed
     //4. The user can then search for another city and its weather will be displayed
     //5. The previously searched cities will be saved as hyperlinks in a list under the search bar
