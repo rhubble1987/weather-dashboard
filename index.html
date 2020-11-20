@@ -31,13 +31,13 @@
     </aside>
     <main class="col-9"><!--Current city's weather and forecast-->
                 <section class="row" id="today"><!--Current weather goes here-->
-                    <div class="card mb-3 col-12">
+                    <div id="current-weather" class="card mb-3 col-12">
                         <div class="row no-gutters">
                           <div class="col-3">
                             <img src="" class="card-img" alt="">
                           </div>
                           <div class="col-9">
-                            <div class="card-body" id="current-weather">
+                            <div class="card-body">
                               <h2>No city selected</h2>
                             </div>
                             </div>
@@ -64,12 +64,12 @@
     //2. When the user enters a city, the city's current weater is displayed in the top card and the 5-day forecast is display in the card deck below it
     $('#search').on('click', function(event){
         event.preventDefault();
+        $('#current-weather').empty();
         var city = $('#city-search').val();
         console.log(city);
         var searchURLCurrentWeather = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=imperial&appid=f235f1e0deb0b2e070d7e0e8c95f6295";
-        var searchURLForecast = "https://api.openweathermap.org/data/2.5/forecast?q=" + city + "&units=imperial&appid=f235f1e0deb0b2e070d7e0e8c95f6295";
+        
         console.log(searchURLCurrentWeather);
-        console.log(searchURLForecast);
         $.ajax({
           url: searchURLCurrentWeather,
           method: "GET"
@@ -83,40 +83,45 @@
                 weather: response.weather[0].main,
                 humidity: response.main.humidity + '%',
                 icon: response.weather[0].icon,
+                lat: response.coord.lat,
+                long: response.coord.lon
             }
             console.log(current);
-            $('.card-img').attr('src','https://openweathermap.org/img/wn/' + current.icon + '@2x.png');
-            $('#current-weather').empty();
-            $('#current-weather').append('<h2 class="card-title">Currently in ' + current.city + '</h2><h3 class="card-text">' + current.temp + '</h3><h4 class="card-text">High: ' + current.high + '</h4><h4 class="card-text">Low: ' + current.low + '</h4><h4 class="card-text">Weather: ' + current.weather + '</h4><h4 class="card-text">Humidity: ' + current.humidity + '</h4>');
+            //$('.card-img').attr('src','https://openweathermap.org/img/wn/' + current.icon + '@2x.png');
+            //$('.card.img').attr('alt','An image of ' + current.weather +'.' )
+            $('#current-weather').append('<div class="row no-gutters"><div class="col-3"><img src="https://openweathermap.org/img/wn/' + current.icon + '@4x.png" alt="An image of ' + current.weather + '."></div><div class="col-9"><div class="card-body"><h2 class="card-title">Currently in ' + current.city + '</h2><h3 class="card-text">' + current.temp + '</h3><h4 class="card-text">High: ' + current.high + '</h4><h4 class="card-text">Low: ' + current.low + '</h4><h4 class="card-text">Weather: ' + current.weather + '</h4><h4 class="card-text">Humidity: ' + current.humidity + '</h4></div></div></div>');
+            var searchURLForecast = "https://api.openweathermap.org/data/2.5/onecall?lat=" + current.lat + "&lon=" + current.long + "&exclude=current,minutely,hourly&units=imperial&appid=f235f1e0deb0b2e070d7e0e8c95f6295";
+            console.log(searchURLForecast);
+            
 
-
-        });
+            $('.card-deck').empty();
+        
         $.ajax({
           url: searchURLForecast,
           method: "GET"
         }).then(function(response) {
           console.log(response);
-          for (i = 0; i < 5; i++) {
+          
+          for (i = 1; i < 6; i++) {
           var forecastDays = {
-              date: moment(response.list[i].dt_txt).format('MM/DD/YYYY'),
-              high: Math.round(response.list[i].main.temp_max) + '&deg;',
-              low: Math.round(response.list[i].main.temp_min) + '&deg;',
-              weather: response.list[i].weather[i].main
+              date: moment(response.daily[i].dt, 'X').format('MM/DD/YYYY'),
+              high: Math.round(response.daily[i].temp.max) + '&deg;',
+              low: Math.round(response.daily[i].temp.min) + '&deg;',
+              weather: response.daily[i].weather[0].main,
+              icon: response.daily[i].weather[0].icon,
             }
             console.log(forecastDays);
-            $('.card-deck').append('<div class="card"><div class="card-body"><h5 class="card-title">' + forecastDays.date + '</h5><p class="card-text">High: ' + forecastDays.high + '</p><p class="card-text">Low: ' + forecastDays.low + '</p><p class="card-text">Weather: ' + forecastDays.weather + '</p></div></div>');
+            $('.card-deck').append('<div class="card"><div class="card-body"><h5 class="card-title">' + forecastDays.date + '</h5><img src="https://openweathermap.org/img/wn/' + forecastDays.icon + '@2x.png" class="card-img" alt="An image of ' + forecastDays.weather + '."><p class="card-text">High: ' + forecastDays.high + '</p><p class="card-text">Low: ' + forecastDays.low + '</p><p class="card-text">Weather: ' + forecastDays.weather + '</p></div></div>');
           }
 
       
         });
 
+      });
+
     });
-
-
-    
-    
-
     //3. If the user refreshes the page, the city will stay as the city whose weather is being displayed
+
     //4. The user can then search for another city and its weather will be displayed
     //5. The previously searched cities will be saved as hyperlinks in a list under the search bar
     //6. When the user clicks the link of the corresponding city, it's weather info will be displayed
