@@ -24,14 +24,17 @@
               </div>
         </section>
         <section><!--List of saved cities-->
-            <ul class="list-group">
-                <li class="list-group-item">No saved cities</li>
-              </ul>
+          <div class="card" style="width: 18rem;">
+            <h3 class="card-title">Saved Cities</h3>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item">No saved cities</li>
+            </ul>
+          </div>
         </section>
     </aside>
     <main class="col-9"><!--Current city's weather and forecast-->
                 <section class="row" id="today"><!--Current weather goes here-->
-                    <div id="current-weather" class="card mb-3 col-12">
+                    <div id="current-weather" class="card mb-3 col-12" data-current-city="Chicago">
                         <div class="row no-gutters">
                           <div class="col-3">
                             <img src="" class="card-img" alt="">
@@ -62,12 +65,24 @@
     //1. When the user first accesses the page, the page will show "No city provided."
     
     //2. When the user enters a city, the city's current weater is displayed in the top card and the 5-day forecast is display in the card deck below it
-    $('#search').on('click', function(event){
-        event.preventDefault();
-        $('#current-weather').empty();
-        var city = $('#city-search').val();
-        console.log(city);
-        var searchURLCurrentWeather = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=imperial&appid=f235f1e0deb0b2e070d7e0e8c95f6295";
+    //2a. The returned name gets stored in the previous cities list and is then 
+    
+    
+    
+    function getWeather() {
+      var citySearch = $('#city-search').val();
+      var currentCity = localStorage.getItem('currentCity');
+      var savedCity = $('.list-group-item')
+      
+        
+        
+        if (citySearch) {
+          var searchURLCurrentWeather = "https://api.openweathermap.org/data/2.5/weather?q=" + citySearch + "&units=imperial&appid=f235f1e0deb0b2e070d7e0e8c95f6295";
+        } else if (currentCity) {
+          var searchURLCurrentWeather = "https://api.openweathermap.org/data/2.5/weather?q=" + currentCity + "&units=imperial&appid=f235f1e0deb0b2e070d7e0e8c95f6295";
+        } else if (savedCity) {
+          var searchURLCurrentWeather = "https://api.openweathermap.org/data/2.5/weather?q=" + savedCity + "&units=imperial&appid=f235f1e0deb0b2e070d7e0e8c95f6295";
+        }
         
         console.log(searchURLCurrentWeather);
         $.ajax({
@@ -87,9 +102,10 @@
                 long: response.coord.lon
             }
             console.log(current);
-            //$('.card-img').attr('src','https://openweathermap.org/img/wn/' + current.icon + '@2x.png');
-            //$('.card.img').attr('alt','An image of ' + current.weather +'.' )
+            localStorage.setItem('currentCity', current.city);
+            $('#current-weather').attr('data-current-city', current.city);
             $('#current-weather').append('<div class="row no-gutters"><div class="col-3"><img src="https://openweathermap.org/img/wn/' + current.icon + '@4x.png" alt="An image of ' + current.weather + '."></div><div class="col-9"><div class="card-body"><h2 class="card-title">Currently in ' + current.city + '</h2><h3 class="card-text">' + current.temp + '</h3><h4 class="card-text">High: ' + current.high + '</h4><h4 class="card-text">Low: ' + current.low + '</h4><h4 class="card-text">Weather: ' + current.weather + '</h4><h4 class="card-text">Humidity: ' + current.humidity + '</h4></div></div></div>');
+            $('.list-group list-group-flush').append('<li class="list-group-item"><a href="#">' + current.city + '</a></li>');
             var searchURLForecast = "https://api.openweathermap.org/data/2.5/onecall?lat=" + current.lat + "&lon=" + current.long + "&exclude=current,minutely,hourly&units=imperial&appid=f235f1e0deb0b2e070d7e0e8c95f6295";
             console.log(searchURLForecast);
             
@@ -110,7 +126,7 @@
               weather: response.daily[i].weather[0].main,
               icon: response.daily[i].weather[0].icon,
             }
-            console.log(forecastDays);
+            console .log(forecastDays);
             $('.card-deck').append('<div class="card"><div class="card-body"><h5 class="card-title">' + forecastDays.date + '</h5><img src="https://openweathermap.org/img/wn/' + forecastDays.icon + '@2x.png" class="card-img" alt="An image of ' + forecastDays.weather + '."><p class="card-text">High: ' + forecastDays.high + '</p><p class="card-text">Low: ' + forecastDays.low + '</p><p class="card-text">Weather: ' + forecastDays.weather + '</p></div></div>');
           }
 
@@ -119,6 +135,23 @@
 
       });
 
+    }
+
+    $(function(){
+      var currentCity = localStorage.getItem('currentCity');
+      if (currentCity) {
+      $('#current-weather').empty();
+      console.log(currentCity);
+      getWeather(); 
+      }     
+
+    });
+    
+    $('#search').on('click', function() {
+        event.preventDefault();
+        $('#current-weather').empty();
+        var citySearch = $('#city-search').val();
+        getWeather();
     });
     //3. If the user refreshes the page, the city will stay as the city whose weather is being displayed
 
