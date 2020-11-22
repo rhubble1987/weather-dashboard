@@ -16,7 +16,7 @@
             <section class="mb-3"><!--Search box-->
             <div class="card">
                 <div class="card-body">
-                    <form class="form-inline my-2 my-lg-0">
+                    <form class="form-inline">
                         <input id="city-search" class="form-control mr-sm-2" type="search" placeholder="Search" aria-label="Search">
                         <button id="search" class="btn btn-outline-success my-2 my-sm-0" type="submit">Search</button>
                       </form>
@@ -24,10 +24,10 @@
               </div>
         </section>
         <section><!--List of saved cities-->
-          <div class="card" style="width: 18rem;">
-            <h3 class="card-title">Saved Cities</h3>
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item">No saved cities</li>
+          <div class="card" id="previous-searches">
+            <h5 class="card-title">Saved Cities</h5>
+            <ul class="list-group list-group-flush" id="saved-cities">
+              <li class="list-group-item" id="first-saved">No saved cities</li>
             </ul>
           </div>
         </section>
@@ -60,108 +60,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ho+j7jyWK8fNQe+A12Hb8AhRq26LrZ/JpcUGGOn+Y7RsweNrtN/tE3MoK7ZeZDyx" crossorigin="anonymous"></script>        
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
     <script src="moment.js"></script>
-    <script type="text/javascript">
-    //Pseudocode
-    //1. When the user first accesses the page, the page will show "No city provided."
-    
-    //2. When the user enters a city, the city's current weater is displayed in the top card and the 5-day forecast is display in the card deck below it
-    //2a. The returned name gets stored in the previous cities list and is then 
-    
-    
-    
-    function getWeather() {
-      var citySearch = $('#city-search').val();
-      var currentCity = localStorage.getItem('currentCity');
-      var savedCity = $('.list-group-item')
-      
-        
-        
-        if (citySearch) {
-          var searchURLCurrentWeather = "https://api.openweathermap.org/data/2.5/weather?q=" + citySearch + "&units=imperial&appid=f235f1e0deb0b2e070d7e0e8c95f6295";
-        } else if (currentCity) {
-          var searchURLCurrentWeather = "https://api.openweathermap.org/data/2.5/weather?q=" + currentCity + "&units=imperial&appid=f235f1e0deb0b2e070d7e0e8c95f6295";
-        } else if (savedCity) {
-          var searchURLCurrentWeather = "https://api.openweathermap.org/data/2.5/weather?q=" + savedCity + "&units=imperial&appid=f235f1e0deb0b2e070d7e0e8c95f6295";
-        }
-        
-        console.log(searchURLCurrentWeather);
-        $.ajax({
-          url: searchURLCurrentWeather,
-          method: "GET"
-        }).then(function(response) {
-            console.log(response);
-            var current = {
-                city: response.name,
-                temp: Math.round(response.main.temp) + '&deg;',
-                high: Math.round(response.main.temp_max) + '&deg;',
-                low: Math.round(response.main.temp_min) + '&deg;',
-                weather: response.weather[0].main,
-                humidity: response.main.humidity + '%',
-                icon: response.weather[0].icon,
-                lat: response.coord.lat,
-                long: response.coord.lon
-            }
-            console.log(current);
-            localStorage.setItem('currentCity', current.city);
-            $('#current-weather').attr('data-current-city', current.city);
-            $('#current-weather').append('<div class="row no-gutters"><div class="col-3"><img src="https://openweathermap.org/img/wn/' + current.icon + '@4x.png" alt="An image of ' + current.weather + '."></div><div class="col-9"><div class="card-body"><h2 class="card-title">Currently in ' + current.city + '</h2><h3 class="card-text">' + current.temp + '</h3><h4 class="card-text">High: ' + current.high + '</h4><h4 class="card-text">Low: ' + current.low + '</h4><h4 class="card-text">Weather: ' + current.weather + '</h4><h4 class="card-text">Humidity: ' + current.humidity + '</h4></div></div></div>');
-            $('.list-group list-group-flush').append('<li class="list-group-item"><a href="#">' + current.city + '</a></li>');
-            var searchURLForecast = "https://api.openweathermap.org/data/2.5/onecall?lat=" + current.lat + "&lon=" + current.long + "&exclude=current,minutely,hourly&units=imperial&appid=f235f1e0deb0b2e070d7e0e8c95f6295";
-            console.log(searchURLForecast);
-            
-
-            $('.card-deck').empty();
-        
-        $.ajax({
-          url: searchURLForecast,
-          method: "GET"
-        }).then(function(response) {
-          console.log(response);
-          
-          for (i = 1; i < 6; i++) {
-          var forecastDays = {
-              date: moment(response.daily[i].dt, 'X').format('MM/DD/YYYY'),
-              high: Math.round(response.daily[i].temp.max) + '&deg;',
-              low: Math.round(response.daily[i].temp.min) + '&deg;',
-              weather: response.daily[i].weather[0].main,
-              icon: response.daily[i].weather[0].icon,
-            }
-            console .log(forecastDays);
-            $('.card-deck').append('<div class="card"><div class="card-body"><h5 class="card-title">' + forecastDays.date + '</h5><img src="https://openweathermap.org/img/wn/' + forecastDays.icon + '@2x.png" class="card-img" alt="An image of ' + forecastDays.weather + '."><p class="card-text">High: ' + forecastDays.high + '</p><p class="card-text">Low: ' + forecastDays.low + '</p><p class="card-text">Weather: ' + forecastDays.weather + '</p></div></div>');
-          }
-
-      
-        });
-
-      });
-
-    }
-
-    $(function(){
-      var currentCity = localStorage.getItem('currentCity');
-      if (currentCity) {
-      $('#current-weather').empty();
-      console.log(currentCity);
-      getWeather(); 
-      }     
-
-    });
-    
-    $('#search').on('click', function() {
-        event.preventDefault();
-        $('#current-weather').empty();
-        var citySearch = $('#city-search').val();
-        getWeather();
-    });
-    //3. If the user refreshes the page, the city will stay as the city whose weather is being displayed
-
-    //4. The user can then search for another city and its weather will be displayed
-    //5. The previously searched cities will be saved as hyperlinks in a list under the search bar
-    //6. When the user clicks the link of the corresponding city, it's weather info will be displayed
-
-
-
-</script>
+    <script src="script.js" type="text/javascript"></script>
 
 </body>
 </html>
