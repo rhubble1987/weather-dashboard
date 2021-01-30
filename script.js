@@ -1,9 +1,4 @@
-    //Pseudocode
-    //1. When the user first accesses the page, the page will show "No city provided."
-    
-    //2. When the user enters a city, the city's current weater is displayed in the top card and the 5-day forecast is display in the card deck below it
-    //2a. The returned name gets stored in the previous cities list and is then 
-   
+    let selectedCity;
     
     function showPreviousSearches() {
       var savedCities = localStorage.getItem('savedCities');
@@ -12,15 +7,15 @@
       }
     }
     
-   function getWeather(selectedCity) {
+   function getWeather(city) {
       
-      var searchURLCurrentWeather = "https://api.openweathermap.org/data/2.5/weather?q=" + selectedCity + "&units=imperial&appid=f235f1e0deb0b2e070d7e0e8c95f6295";
+      var searchURLCurrentWeather = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&units=imperial&appid=f235f1e0deb0b2e070d7e0e8c95f6295";
         
         //currentCity = localStorage.setItem('currentCity',"");
         
         console.log(searchURLCurrentWeather);
-        $('#city-search').val("");
-        $.ajax({
+        /* $('#city-search').val(); */
+        $.ajax({ 
           url: searchURLCurrentWeather,
           method: "GET"
         }).then(function(response) {
@@ -49,8 +44,8 @@
             }
             
 
-            if (current.city !== selectedCity) {
-              $('#saved-cities').append('<li class="list-group-item"><a href="#">' + current.city + '</a></li>');
+            if (current.city !== city) {
+              $('#saved-cities').append('<li class="list-group-item"><a class="saved-location" data-city="' + current.city + '" href="#">' + current.city + '</a></li>');
             }
             
             
@@ -85,58 +80,45 @@
             $('.card-deck').append('<div class="card"><div class="card-body"><h4 class="card-title text-center">' + forecastDays.date + '</h4><img src="https://openweathermap.org/img/wn/' + forecastDays.icon + '@2x.png" class="card-img" alt="An image of ' + forecastDays.weather + '."><p class="card-text">High: ' + forecastDays.high + '</p><p class="card-text">Low: ' + forecastDays.low + '</p><p class="card-text">Weather: ' + forecastDays.weather + '</p></div></div>');
           }
 
-      
+          
+          
         });
 
       });
 
     }
     //On page load, the page will pull the last current city if one exists and load its weather
-    $(function(){
+
       var currentCity = localStorage.getItem('currentCity');
       if (currentCity) {
-        var selectedCity = currentCity;
       $('#current-weather').empty();
-      console.log(selectedCity);
-      getWeather(selectedCity);
-      showPreviousSearches(); 
-      }     
+      console.log(currentCity);
+      getWeather(currentCity);
+      }
+      showPreviousSearches();    
 
-    });
-    
-     $('#search').on('click', function(){
-      $('#current-weather').empty();
-         var selectedCity = $('#city-search').val();
-      
-      console.log(selectedCity);
-      getWeather(selectedCity);
-     });
-    
-      $('a').on('click', function(event){
-         var selectedCity = event.target.textContent;
-         getWeather(selectedCity);
-     });
-       
-       
-  
-     
-     /* $('#search').on('click', function(event) {
-        event.preventDefault();
-        //4. The user can then search for another city and its weather will be displayed
+      $('.saved-location').on('click', function(){
+        //event.preventDefault();
         $('#current-weather').empty();
-        var citySearch = $('#city-search').val();
-        getWeather();
-    });
+         var selectedCity = $(this).attr('data-city');
+         console.log(selectedCity);
+         getWeather(selectedCity).then(location.reload());
+         
+      });
 
-    //Function to get the current weather for a saved city
-    $('#saved-cities').on('click', function(event){
+      $('#search').on('click', function(event){
+        event.preventDefault();
       $('#current-weather').empty();
-      getWeather();
-    }); */
+         searchCity = $('#city-search').val();
+         getWeather(searchCity).then(location.reload());
+      /* var citySearchBox = $('#city-search').val();
+      citySearchBox = ""; */
+      });
+
+
+
 
 
     
-
-    
-    
-    //6. When the user clicks the link of the corresponding city, it's weather info will be displayed
+     
+       
